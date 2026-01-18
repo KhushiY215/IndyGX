@@ -1,4 +1,4 @@
-from sqlmodel import select
+from sqlmodel import select, Session
 from ..database import get_session
 from ..models import CompanySecondary
 
@@ -34,5 +34,16 @@ class CompanySecondaryRepository:
             session.delete(obj)
             session.commit()
             return True
+    @staticmethod
+    def upsert(company_id: int, data: dict, session: Session):
+        obj = session.get(CompanySecondary, company_id)
 
+        if obj:
+            for k, v in data.items():
+                setattr(obj, k, v)
+        else:
+            obj = CompanySecondary(company_id=company_id, **data)
+            session.add(obj)
+
+        return obj
  
